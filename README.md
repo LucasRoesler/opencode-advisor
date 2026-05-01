@@ -22,14 +22,14 @@ Executor continues with advice integrated
 
 ```bash
 ```bash
-npm install -g opencode-advisor
+npm install -g @u007/opencode-advisor
 ```
 
 Then add to `opencode.json`:
 
 ```json
 {
-  "plugin": ["opencode-advisor"]
+  "plugin": ["@u007/opencode-advisor"]
 }
 ```
 
