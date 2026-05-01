@@ -21,18 +21,19 @@ Executor continues with advice integrated
 ## Install
 
 ```bash
-npm install -g @nanobot/opencode-advisor
+```bash
+npm install -g opencode-advisor
 ```
 
 Then add to `opencode.json`:
 
 ```json
 {
-  "plugin": ["@nanobot/opencode-advisor"]
+  "plugin": ["opencode-advisor"]
 }
 ```
 
-Or install globally and it's auto-discovered.
+Or drop `src/advisor.ts` into `~/.config/opencode/plugins/` for zero-config setup.
 
 ## How the executor knows when to call it
 
