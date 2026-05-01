@@ -1,0 +1,19 @@
+{
+  "name": "opencode-advisor",
+  "version": "1.0.0",
+  "description": "First-class advisor tool for OpenCode — executor consults DeepSeek V4 Pro for strategic guidance mid-task",
+  "type": "module",
+  "main": "src/advisor.ts",
+  "exports": {
+    ".": "./src/advisor.ts"
+  },
+  "keywords": ["opencode", "plugin", "advisor", "deepseek"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/u007/opencode-advisor.git"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": ">=1.4.9"
+  }
+}
