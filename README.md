@@ -35,6 +35,34 @@ Then add to `opencode.json`:
 
 Or drop `src/advisor.ts` into `~/.config/opencode/plugins/` for zero-config setup.
 
+## Configuring the advisor model
+
+Defaults to `deepseek/deepseek-v4-pro`. Override via either:
+
+**1. `opencode.json`** — add an `advisor` block:
+
+```json
+{
+  "plugin": ["@u007/opencode-advisor"],
+  "advisor": {
+    "model": "anthropic/claude-opus-4-7"
+  }
+}
+```
+
+Or split form: `"advisor": { "providerID": "anthropic", "modelID": "claude-opus-4-7" }`.
+
+**2. Environment variables** (override config):
+
+```bash
+export OPENCODE_ADVISOR_MODEL="anthropic/claude-opus-4-7"
+# or split:
+export OPENCODE_ADVISOR_PROVIDER="anthropic"
+export OPENCODE_ADVISOR_MODEL="claude-opus-4-7"
+```
+
+The chosen provider must be authenticated in OpenCode (`/connect`).
+
 ## How the executor knows when to call it
 
 The tool description tells the model:

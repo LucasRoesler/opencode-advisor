@@ -1,11 +1,27 @@
 import { type Plugin, tool } from "@opencode-ai/plugin"
 
-const ADVISOR_MODEL = {
-  providerID: "deepseek",
-  modelID: "deepseek-v4-pro",
+const DEFAULT_PROVIDER = "deepseek"
+const DEFAULT_MODEL = "deepseek-v4-pro"
+
+let advisorModel = {
+  providerID: DEFAULT_PROVIDER,
+  modelID: DEFAULT_MODEL,
 }
 
 let inAdvisorCall = false
+
+function resolveModelFromEnv() {
+  const env = (typeof process !== "undefined" && process.env) || {}
+  const combined = env.OPENCODE_ADVISOR_MODEL
+  if (combined && combined.includes("/")) {
+    const [providerID, ...rest] = combined.split("/")
+    return { providerID, modelID: rest.join("/") }
+  }
+  const providerID = env.OPENCODE_ADVISOR_PROVIDER
+  const modelID = env.OPENCODE_ADVISOR_MODEL
+  if (providerID && modelID) return { providerID, modelID }
+  return null
+}
 
 const SYSTEM_PROMPT = `You are a strategic advisor for a coding agent. Read the conversation transcript below and provide a concise plan or course correction.
 
@@ -23,7 +39,7 @@ Key heuristics:
 
 Respond in under 300 words. Use enumerated steps. Do NOT write code — only advise.`
 
-const TOOL_DESCRIPTION = `Consult a strategic advisor (backed by DeepSeek V4 Pro) that reads your full conversation context and provides a concise plan or course correction.
+const TOOL_DESCRIPTION = `Consult a strategic advisor (backed by a stronger reviewer model, configurable; defaults to DeepSeek V4 Pro) that reads your full conversation context and provides a concise plan or course correction.
 
 Call advisor BEFORE substantive work — before writing code, editing files, committing to an interpretation, or building on an assumption. If the task requires orientation first (finding files, reading code, fetching docs), do that, then call advisor. Orientation is NOT substantive work.
 
@@ -37,7 +53,23 @@ On tasks longer than a few steps, call advisor at least once before committing t
 Give the advice serious weight. Only override if you have primary-source evidence that contradicts a specific claim. Surface conflicts in another advisor call rather than silently switching approaches.`
 
 export const AdvisorPlugin: Plugin = async ({ client }) => {
+  const fromEnv = resolveModelFromEnv()
+  if (fromEnv) advisorModel = fromEnv
+
   return {
+    config: async (config: any) => {
+      const cfg = config?.advisor
+      if (cfg && typeof cfg === "object") {
+        if (typeof cfg.model === "string" && cfg.model.includes("/")) {
+          const [providerID, ...rest] = cfg.model.split("/")
+          advisorModel = { providerID, modelID: rest.join("/") }
+        } else if (cfg.providerID && cfg.modelID) {
+          advisorModel = { providerID: cfg.providerID, modelID: cfg.modelID }
+        }
+      }
+      const envOverride = resolveModelFromEnv()
+      if (envOverride) advisorModel = envOverride
+    },
     tool: {
       advisor: tool({
         description: TOOL_DESCRIPTION,
@@ -73,6 +105,9 @@ export const AdvisorPlugin: Plugin = async ({ client }) => {
               return "Advisor declined: no prior conversation to analyze."
             }
 
+            console.log(
+              `[advisor] using ${advisorModel.providerID}/${advisorModel.modelID}`,
+            )
             console.log("[advisor] input transcript:\n" + transcript)
 
             const session = await client.session.create({
@@ -83,7 +118,7 @@ export const AdvisorPlugin: Plugin = async ({ client }) => {
               const response = await client.session.prompt({
                 path: { id: session.data!.id },
                 body: {
-                  model: ADVISOR_MODEL,
+                  model: advisorModel,
                   parts: [
                     {
                       type: "text",
