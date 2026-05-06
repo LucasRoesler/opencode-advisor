@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2 — 2026-05-06
+
+- Version bump to resolve npm publish conflict (1.1.1 was already published).
+
 ## 1.1.1 — 2026-05-06
 
 - Republish with no functional changes.
