@@ -1,6 +1,6 @@
 {
   "name": "@u007/opencode-advisor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "First-class advisor tool for OpenCode — executor consults DeepSeek V4 Pro for strategic guidance mid-task",
   "type": "module",
   "main": "src/advisor.ts",

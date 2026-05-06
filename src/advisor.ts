@@ -73,6 +73,8 @@ export const AdvisorPlugin: Plugin = async ({ client }) => {
               return "Advisor declined: no prior conversation to analyze."
             }
 
+            console.log("[advisor] input transcript:\n" + transcript)
+
             const session = await client.session.create({
               body: { title: "advisor-subcall" },
             })
@@ -95,6 +97,8 @@ export const AdvisorPlugin: Plugin = async ({ client }) => {
                 ?.filter((p) => p.type === "text")
                 .map((p) => p.text)
                 .join("\n")
+
+              console.log("[advisor] response:\n" + (text || "(empty)"))
 
               return text || "Advisor returned no advice."
             } finally {
