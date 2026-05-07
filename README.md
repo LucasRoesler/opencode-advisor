@@ -33,7 +33,15 @@ Then add to `opencode.json`:
 }
 ```
 
-Or drop `src/advisor.ts` into `~/.config/opencode/plugins/` for zero-config setup.
+Or use the setup script for interactive toggle:
+
+```bash
+bun run setup         # interactive — shows status, prompts actions
+bun run setup btw     # install/upgrade a specific plugin
+bun run setup --all   # install/upgrade everything
+```
+
+Or drop plugin `.ts` files into `~/.config/opencode/plugins/` for zero-config setup.
 
 ## Configuring the advisor model
 
@@ -72,6 +80,63 @@ The tool description tells the model:
 - Call **before declaring done** — after deliverable is durable
 - On long tasks: at least once before approach + once before done
 - Give advice serious weight; surface conflicts rather than silently switching
+
+## BTW Command
+
+A `/btw` (by-the-way) slash command that spawns a fully ephemeral sub-session to answer your question independently. The BTW answer appears as a card in the main session without interrupting the currently running agent.
+
+```
+User: /btw what is the capital of France?
+   ↓
+Acknowledged immediately — agent continues working
+   ↓
+Ephemeral session investigates in background, reads files, answers
+   ↓
+Answer card appears in session — main conversation uninterrupted
+```
+
+### How it works
+
+1. User types `/btw <question>`
+2. Plugin intercepts via `command.execute.before` hook, acknowledges immediately
+3. Background process creates an ephemeral session via SDK (no parentID — fully independent)
+4. Feeds it the main session transcript + the question
+5. Ephemeral session runs, reads files, investigates
+6. Captures the single response
+7. Deletes the ephemeral session
+8. Appends answer as a card to main session via `session.prompt({ noReply: true })` — no AI response triggered
+9. `/btw` message stays visible; current agent unaffected
+
+### Install
+
+```bash
+bun run setup btw      # install/upgrade via setup script
+bun run setup         # interactive mode, select BTW
+```
+
+Or drop `src/btw.ts` into `~/.config/opencode/plugins/` and `commands/btw.md` into `~/.config/opencode/commands/`.
+
+Or via npm (add as separate plugin):
+
+```json
+{
+  "plugin": ["@u007/opencode-advisor", "@u007/opencode-advisor/btw"]
+}
+```
+
+### Config
+
+Same pattern as advisor — `opencode.json`:
+
+```json
+{
+  "btw": {
+    "model": "deepseek/deepseek-v4-pro"
+  }
+}
+```
+
+Or env vars: `OPENCODE_BTW_MODEL`, `OPENCODE_BTW_PROVIDER`.
 
 ## Requirements
 

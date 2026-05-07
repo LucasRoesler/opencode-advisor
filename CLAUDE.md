@@ -4,11 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-An OpenCode plugin that adds an `advisor()` tool to the executor's tool list. When called, the plugin fetches the active session transcript via the OpenCode SDK, creates an ephemeral session, sends it to DeepSeek V4 Pro with a strategic guidance prompt, and returns <300-word advice as a tool result.
+An OpenCode plugin package providing two plugins:
+- **Advisor** — `advisor()` tool that lets the executor consult DeepSeek V4 Pro for strategic guidance mid-task
+- **BTW** — `/btw` slash command that spawns an ephemeral sub-session to answer independently without persisting in conversation history
 
-Single source file: `src/advisor.ts`. Published to npm as `@u007/opencode-advisor`.
+Published to npm as `@u007/opencode-advisor`.
 
 ## Architecture
+
+### Advisor Plugin (`src/advisor.ts`)
 
 - **Plugin entry:** `AdvisorPlugin` (default export from `src/advisor.ts`) — implements the `Plugin` type from `@opencode-ai/plugin`
 - **Tool registration:** `tool({ description, args: {}, execute })` — no arguments; the tool reads context from `context.sessionID` and `context.messageID`
@@ -16,6 +20,16 @@ Single source file: `src/advisor.ts`. Published to npm as `@u007/opencode-adviso
 - **Advisor call:** ephemeral session created via `client.session.create`, prompted with `ADVISOR_MODEL` (deepseek-v4-pro), deleted in `finally`
 - **Recursion guard:** `inAdvisorCall` module-level flag prevents nested advisor calls
 - **Debugging:** `console.log` outputs transcript sent to DeepSeek and the returned advice
+
+### BTW Plugin (`src/btw.ts`)
+
+- **Plugin entry:** `BtwPlugin` (default export from `src/btw.ts`) — implements the `Plugin` type from `@opencode-ai/plugin`
+- **Hook:** `"command.execute.before"` — intercepts `/btw` commands
+- **Ephemeral session:** v2 SDK client (`createOpencodeClient` from `@opencode-ai/sdk/v2`) creates temp session, sends prompt with transcript context, deletes after response
+- **Non-blocking:** acknowledged immediately in hook, ephemeral session runs in background
+- **Result card:** answer appended to main session via `session.prompt({ noReply: true })` — adds message, no AI reply, current agent uninterrupted
+- **Model resolution:** Config via env vars `OPENCODE_BTW_MODEL`, `OPENCODE_BTW_PROVIDER`, or opencode.json `btw` block — follows same pattern as advisor
+- **Recursion guard:** `inBtwCall` module-level flag
 
 ## Publishing
 
@@ -27,7 +41,17 @@ Bump `version` in `package.json` before publishing.
 
 ## Install (for testing locally)
 
-Copy `src/advisor.ts` to `~/.config/opencode/plugins/advisor.ts` — OpenCode auto-loads `.ts` files from that directory with no config needed.
+Use the setup script:
+
+```bash
+bun run setup         # interactive — shows status, prompts actions
+bun run setup --all   # install/upgrade everything
+bun run setup btw     # install/upgrade a specific plugin
+bun run setup --status # check installed state
+bun run setup --remove btw  # remove a plugin
+```
+
+Or manually: copy `.ts` files to `~/.config/opencode/plugins/` and command `.md` files to `~/.config/opencode/commands/`.
 
 Or via npm + `opencode.json`:
 
