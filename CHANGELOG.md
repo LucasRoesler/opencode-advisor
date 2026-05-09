@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0 — 2026-05-10
+## 1.2.1 — 2026-05-10
 
 - Refactored model config from `config` hook to plugin entry tuple `options` parameter for both advisor and BTW plugins.
 - Config format changed from `{ "advisor": { "model": "..." } }` to `["@u007/opencode-advisor", { "model": "..." }]` in `opencode.json`.

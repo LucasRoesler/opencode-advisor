@@ -1,6 +1,6 @@
 {
   "name": "@u007/opencode-advisor",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "OpenCode plugins — advisor() tool and /btw command",
   "type": "module",
   "main": "src/advisor.ts",
