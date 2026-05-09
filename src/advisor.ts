@@ -52,21 +52,31 @@ On tasks longer than a few steps, call advisor at least once before committing t
 
 Give the advice serious weight. Only override if you have primary-source evidence that contradicts a specific claim. Surface conflicts in another advisor call rather than silently switching approaches.`
 
-export const AdvisorPlugin: Plugin = async ({ client }) => {
-  const fromEnv = resolveModelFromEnv()
-  if (fromEnv) advisorModel = fromEnv
+function applyModelOptions(opts: Record<string, unknown>) {
+  if (typeof opts.model === "string" && opts.model.includes("/")) {
+    const [providerID, ...rest] = opts.model.split("/")
+    advisorModel = { providerID, modelID: rest.join("/") }
+  } else if (typeof opts.providerID === "string" && typeof opts.modelID === "string") {
+    advisorModel = { providerID: opts.providerID, modelID: opts.modelID }
+  }
+}
+
+export const AdvisorPlugin: Plugin = async ({ client }, options) => {
+  if (options && typeof options === "object") {
+    applyModelOptions(options as Record<string, unknown>)
+  }
+  const envOverride = resolveModelFromEnv()
+  if (envOverride) advisorModel = envOverride
 
   return {
-    config: async (config: any) => {
-      const cfg = config?.advisor
-      if (cfg && typeof cfg === "object") {
-        if (typeof cfg.model === "string" && cfg.model.includes("/")) {
-          const [providerID, ...rest] = cfg.model.split("/")
-          advisorModel = { providerID, modelID: rest.join("/") }
-        } else if (cfg.providerID && cfg.modelID) {
-          advisorModel = { providerID: cfg.providerID, modelID: cfg.modelID }
-        }
-      }
+    config: async (config) => {
+      // When loaded from local plugins dir (no options), read model from the plugin array in opencode.json
+      const pluginEntry = config.plugin?.find(
+        (p): p is [string, Record<string, unknown>] =>
+          Array.isArray(p) && typeof p[0] === "string" && p[0].includes("opencode-advisor"),
+      )
+      if (pluginEntry?.[1]) applyModelOptions(pluginEntry[1])
+
       const envOverride = resolveModelFromEnv()
       if (envOverride) advisorModel = envOverride
     },

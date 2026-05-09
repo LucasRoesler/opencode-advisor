@@ -34,9 +34,17 @@ Use the conversation context below to understand what the user is working on, th
 
 Be concise and direct. Provide the answer in under 300 words. Do not ask follow-up questions — this is a one-shot interaction.`
 
-export const BtwPlugin: Plugin = async ({ serverUrl, directory }) => {
-  const fromEnv = resolveModelFromEnv()
-  if (fromEnv) btwModel = fromEnv
+export const BtwPlugin: Plugin = async ({ serverUrl, directory }, options) => {
+  if (options && typeof options === "object") {
+    if (typeof options.model === "string" && options.model.includes("/")) {
+      const [providerID, ...rest] = options.model.split("/")
+      btwModel = { providerID, modelID: rest.join("/") }
+    } else if (typeof options.providerID === "string" && typeof options.modelID === "string") {
+      btwModel = { providerID: options.providerID, modelID: options.modelID }
+    }
+  }
+  const envOverride = resolveModelFromEnv()
+  if (envOverride) btwModel = envOverride
 
   const v2client = createOpencodeClient({
     baseUrl: serverUrl.toString(),
@@ -112,19 +120,6 @@ export const BtwPlugin: Plugin = async ({ serverUrl, directory }) => {
   }
 
   return {
-    config: async (config: any) => {
-      const cfg = config?.btw
-      if (cfg && typeof cfg === "object") {
-        if (typeof cfg.model === "string" && cfg.model.includes("/")) {
-          const [providerID, ...rest] = cfg.model.split("/")
-          btwModel = { providerID, modelID: rest.join("/") }
-        } else if (cfg.providerID && cfg.modelID) {
-          btwModel = { providerID: cfg.providerID, modelID: cfg.modelID }
-        }
-      }
-      const envOverride = resolveModelFromEnv()
-      if (envOverride) btwModel = envOverride
-    },
     "command.execute.before": async (input, output) => {
       if (input.command !== "btw") return
 

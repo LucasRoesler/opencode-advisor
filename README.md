@@ -47,18 +47,17 @@ Or drop plugin `.ts` files into `~/.config/opencode/plugins/` for zero-config se
 
 Defaults to `deepseek/deepseek-v4-pro`. Override via either:
 
-**1. `opencode.json`** — add an `advisor` block:
+**1. `opencode.json`** — pass options in the plugin entry:
 
 ```json
 {
-  "plugin": ["@u007/opencode-advisor"],
-  "advisor": {
-    "model": "anthropic/claude-opus-4-7"
-  }
+  "plugin": [
+    ["@u007/opencode-advisor", { "model": "anthropic/claude-opus-4-7" }]
+  ]
 }
 ```
 
-Or split form: `"advisor": { "providerID": "anthropic", "modelID": "claude-opus-4-7" }`.
+Or split form: `["@u007/opencode-advisor", { "providerID": "anthropic", "modelID": "claude-opus-4-7" }]`.
 
 **2. Environment variables** (override config):
 
@@ -126,13 +125,13 @@ Or via npm (add as separate plugin):
 
 ### Config
 
-Same pattern as advisor — `opencode.json`:
+Pass options in the plugin entry:
 
 ```json
 {
-  "btw": {
-    "model": "deepseek/deepseek-v4-pro"
-  }
+  "plugin": [
+    ["@u007/opencode-advisor/btw", { "model": "deepseek/deepseek-v4-pro" }]
+  ]
 }
 ```
 

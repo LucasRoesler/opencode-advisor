@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 — 2026-05-10
+
+- Refactored model config from `config` hook to plugin entry tuple `options` parameter for both advisor and BTW plugins.
+- Config format changed from `{ "advisor": { "model": "..." } }` to `["@u007/opencode-advisor", { "model": "..." }]` in `opencode.json`.
+- Extracted shared model resolution into `applyModelOptions()` helper.
+
 ## 1.1.2 — 2026-05-06
 
 - Version bump to resolve npm publish conflict (1.1.1 was already published).
