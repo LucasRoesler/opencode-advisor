@@ -1,7 +1,7 @@
 import { type Plugin, tool } from "@opencode-ai/plugin"
 
-const DEFAULT_PROVIDER = "deepseek"
-const DEFAULT_MODEL = "deepseek-v4-pro"
+const DEFAULT_PROVIDER = "anthropic"
+const DEFAULT_MODEL = "claude-opus-4-8"
 
 let advisorModel = {
   providerID: DEFAULT_PROVIDER,
@@ -39,7 +39,7 @@ Key heuristics:
 
 Respond in under 300 words. Use enumerated steps. Do NOT write code — only advise.`
 
-const TOOL_DESCRIPTION = `Consult a strategic advisor (backed by a stronger reviewer model, configurable; defaults to DeepSeek V4 Pro) that reads your full conversation context and provides a concise plan or course correction.
+const TOOL_DESCRIPTION = `Consult a strategic advisor (backed by a stronger model, configurable) that reads your full conversation context and provides a concise plan or course correction.
 
 Call advisor BEFORE substantive work — before writing code, editing files, committing to an interpretation, or building on an assumption. If the task requires orientation first (finding files, reading code, fetching docs), do that, then call advisor. Orientation is NOT substantive work.
 

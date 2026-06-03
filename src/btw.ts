@@ -1,8 +1,8 @@
 import { type Plugin } from "@opencode-ai/plugin"
 import { createOpencodeClient } from "@opencode-ai/sdk/v2"
 
-const DEFAULT_PROVIDER = "deepseek"
-const DEFAULT_MODEL = "deepseek-v4-pro"
+const DEFAULT_PROVIDER = "dgx-spark"
+const DEFAULT_MODEL = "qwen3.6-35b"
 
 let btwModel = {
   providerID: DEFAULT_PROVIDER,
